@@ -1,0 +1,117 @@
+## Visual Studio
+.vs/
+.vscode/
+
+## User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+## Visual Studio cache files
+*.localhistory/
+.vs/
+*.cache
+*.db
+*.opendb
+
+## MSTest test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## NUnit
+*.VisualState.xml
+TestResult.xml
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## NuGet
+*.nupkg
+*.snupkg
+# NuGet packages folder
+packages/
+# Except build/ and tools/
+!packages/build/
+!packages/tools/
+# Uncomment if necessary
+#!packages/repositories.config
+
+## Npm (if using React, Blazor Hybrid, etc.)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## Make VS Code happy
+*.code-workspace
+
+## Azure
+PublishProfiles/
+*.pubxml
+*.publishsettings
+
+## Rider
+.idea/
+
+## Logs
+*.log
+logs/
+
+## Other artifacts
+*.pid
+*.lock.json
+*.lock
+
+## Environment files
+*.env
+*.env.*
+
+## DotNet tools
+*.generated.cs
+*.g.cs
+
+## Backup & temp files
+*.bak
+*.tmp
+*.temp
+
+## File-based project elements
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+Extensions/
+
+## Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+## Docker
+docker-compose.override.yml
+**/docker-compose.*.yml
+**/Dockerfile.*.backup
+
+## VS Code Profiles
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+

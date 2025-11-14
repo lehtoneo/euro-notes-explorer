@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuroNoteExplorer.UI", "src\ui\EuroNoteExplorer.UI\EuroNoteExplorer.UI.csproj", "{FAA2CE3B-E10C-4FCA-AA05-E2EA8D911D01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuroNoteExplorer.Shared", "src\shared\EuroNoteExplorer.Shared\EuroNoteExplorer.Shared.csproj", "{3CD106E9-1BC8-4306-9934-9293980EEE87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EuroNoteExplorer.Api", "src\api\EuroNoteExplorer.Api\EuroNoteExplorer.Api.csproj", "{33A9C0C1-6B49-4ACF-9AED-071B6677DF43}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAA2CE3B-E10C-4FCA-AA05-E2EA8D911D01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAA2CE3B-E10C-4FCA-AA05-E2EA8D911D01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAA2CE3B-E10C-4FCA-AA05-E2EA8D911D01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAA2CE3B-E10C-4FCA-AA05-E2EA8D911D01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CD106E9-1BC8-4306-9934-9293980EEE87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CD106E9-1BC8-4306-9934-9293980EEE87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CD106E9-1BC8-4306-9934-9293980EEE87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CD106E9-1BC8-4306-9934-9293980EEE87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33A9C0C1-6B49-4ACF-9AED-071B6677DF43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33A9C0C1-6B49-4ACF-9AED-071B6677DF43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33A9C0C1-6B49-4ACF-9AED-071B6677DF43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33A9C0C1-6B49-4ACF-9AED-071B6677DF43}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F95603B7-6DC8-4B95-B165-99FACFB900C2}
+	EndGlobalSection
+EndGlobal
