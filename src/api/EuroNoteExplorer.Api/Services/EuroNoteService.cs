@@ -1,4 +1,5 @@
 ﻿using EuroNoteExplorer.Api.Services.Interfaces;
+using EuroNoteExplorer.Shared.Caching;
 using EuroNoteExplorer.Shared.DTOs;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ public class EuroNoteService : IEuroNoteService
 {
     private readonly EuroNoteServiceOptions _options;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ICache _cache;
 
     // Bank of Finland dataset & series names
     private const string Dataset = "BOF_BKN1_PUBL";
@@ -33,9 +35,10 @@ public class EuroNoteService : IEuroNoteService
         ["B500"] = 500
     };
 
-    public EuroNoteService(EuroNoteServiceOptions options, IHttpClientFactory httpClientFactory)
+    public EuroNoteService(EuroNoteServiceOptions options, IHttpClientFactory httpClientFactory, ICache cache)
     {
-        _options = options;
+        _cache = cache;
+		_options = options;
         _httpClientFactory = httpClientFactory;
     }
 
@@ -45,10 +48,12 @@ public class EuroNoteService : IEuroNoteService
         var summaries = new List<BankNoteSummary>();
 
 
+        DateTime currDate = DateTime.UtcNow;
+		var key = currDate.ToString("yyyyMMdd");
 
-        var exchangeRates = await GetExchangeRatesAsync(DateTime.UtcNow);
+		var exchangeRates = await _cache.GetOrAddAsync(key, async ()  => await GetExchangeRatesAsync(currDate), TimeSpan.FromDays(1));
 
-        foreach (var (denomCode, nominalValue) in Denominations)
+		foreach (var (denomCode, nominalValue) in Denominations)
         {
             try
             {
@@ -65,7 +70,6 @@ public class EuroNoteService : IEuroNoteService
                 decimal totalCount = countData.LastOrDefault()?.Value ?? 0;
                 var totalValue = totalCount * nominalValue;
 
-                // Luo yhteenveto tälle seteliarvalle
                 var summary = new BankNoteSummary
                 {
                     Denomination = nominalValue,
@@ -93,7 +97,6 @@ public class EuroNoteService : IEuroNoteService
             }
             catch (Exception ex)
             {
-                // Logita virhe, mutta jatka muiden seteliarvojen hakua
                 Console.WriteLine($"Error fetching data for {denomCode}: {ex.Message}");
             }
         }

@@ -1,5 +1,6 @@
 using EuroNoteExplorer.Api.Options;
 using EuroNoteExplorer.Api.Services;
+using EuroNoteExplorer.Shared.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ EuroNoteServiceOptions euroNoteServiceOptions = new EuroNoteServiceOptions {
     BoFOpenAPIBaseUrl = bofOpenAPIBaseUrl
 };
 
+builder.Services.AddInMemoryCache();
 builder.Services.AddEuroNoteService(euroNoteServiceOptions);
 
 var app = builder.Build();
