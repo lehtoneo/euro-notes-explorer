@@ -75,12 +75,16 @@ public class EuroNoteService : IEuroNoteService
                     Count = (long)(totalCount),
                     CurrencyValues = exchangeRates.Keys.Select(currencyCode =>
                     {
-                        decimal exchangeRate = exchangeRates[currencyCode];
+                        string exchangeRate = exchangeRates[currencyCode];
+                        decimal exchangeRateDecimal = _getDecimalFromAPIStr(exchangeRate);
 
-                        return new CurrencyValue {
+                        decimal val = totalValue * exchangeRateDecimal;
+                        string valStr = val.ToString(CultureInfo.InvariantCulture);
+
+						return new CurrencyValue {
                             CurrencyCode = currencyCode,
-                            Value = totalValue * exchangeRate,
-                            ExchangeRate = exchangeRate,
+                            Value = valStr,
+                            ExchangeRate = exchangeRateDecimal.ToString(CultureInfo.InvariantCulture),
                         };
                     })
                 };
@@ -125,7 +129,7 @@ public class EuroNoteService : IEuroNoteService
         }).ToList();
     }
 
-    public async Task<Dictionary<string, decimal>> GetExchangeRatesAsync(DateTime date, string[]? currencies = null)
+    public async Task<Dictionary<string, string>> GetExchangeRatesAsync(DateTime date, string[]? currencies = null)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
@@ -147,7 +151,7 @@ public class EuroNoteService : IEuroNoteService
 
         var result = await response.Content.ReadFromJsonAsync<List<ExchangeRateInfo>>();
 
-        return result!.ToDictionary(r => r.Currency, r => _getDecimalFromAPIStr(r.ExchangeRates?.FirstOrDefault()?.Value));
+        return result!.ToDictionary(r => r.Currency, r => r.ExchangeRates?.FirstOrDefault()?.Value ?? "0");
         
     }
     private decimal _getDecimalFromAPIStr(string? str)

@@ -21,9 +21,9 @@ namespace EuroNoteExplorer.Shared.DTOs
     {
         public string CurrencyCode { get; set; }
 
-        public decimal Value { get; set; }
+        public string Value { get; set; }
 
-        public decimal ExchangeRate { get; set; }
+        public string ExchangeRate { get; set; }
     }
     
 }
