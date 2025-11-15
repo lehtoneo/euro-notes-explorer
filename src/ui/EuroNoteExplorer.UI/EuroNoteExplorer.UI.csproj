@@ -1,13 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LaunchSettingsFile>Properties\launchSettings.json</LaunchSettingsFile>
+		<UseLegacyHostingLaunchSettings>true</UseLegacyHostingLaunchSettings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\shared\EuroNoteExplorer.Shared\EuroNoteExplorer.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\shared\EuroNoteExplorer.Shared\EuroNoteExplorer.Shared.csproj" />
+	</ItemGroup>
 
 </Project>

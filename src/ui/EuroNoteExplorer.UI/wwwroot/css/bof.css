@@ -1,0 +1,57 @@
+/* --- Suomen Pankin väripaletti --- */
+:root {
+    --sp-dark-blue: #003479;
+    --sp-light-blue: #4C84C3;
+    --sp-grey-bg: #F5F5F5;
+    --sp-grey-border: #E0E0E0;
+    --sp-text-dark: #333333;
+}
+
+/* --- Otsikot --- */
+.sp-title {
+    color: var(--sp-dark-blue);
+}
+
+/* --- Painike --- */
+.sp-button {
+    background-color: var(--sp-dark-blue) !important;
+    border-color: var(--sp-dark-blue) !important;
+    color: white !important;
+}
+
+/* --- Kortin header --- */
+.sp-card-header {
+    background: linear-gradient(135deg, var(--sp-dark-blue) 0%, var(--sp-light-blue) 100%);
+    color: white;
+}
+
+/* --- Vaalea sisältölaatikko --- */
+.sp-box {
+    background-color: var(--sp-grey-bg);
+}
+
+/* --- Tietokenttien otsikot --- */
+.sp-section-title {
+    color: var(--sp-dark-blue);
+}
+
+/* --- Pääkorostusnumero --- */
+.sp-number-primary {
+    color: var(--sp-dark-blue);
+}
+
+.sp-number-secondary {
+    color: var(--sp-light-blue);
+}
+
+/* --- Badget --- */
+.sp-badge {
+    background-color: var(--sp-dark-blue);
+    color: white;
+}
+
+/* --- Infoboksi --- */
+.sp-alert {
+    background-color: var(--sp-light-blue);
+    color: white;
+}
