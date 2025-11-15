@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: src/api/EuroNoteExplorer.Api/Dockerfile
     ports:
-      - "5000:8080"
+      - "7001:8080"
 
   ui:
     build:
@@ -15,6 +15,6 @@ services:
     depends_on:
       - api
     ports:
-      - "5001:8081"
+      - "7000:8080"
     environment:
-      - ApiBaseUrl=http://api:8080
+      - EuroNoteAPIBaseUrl=http://api:8080
