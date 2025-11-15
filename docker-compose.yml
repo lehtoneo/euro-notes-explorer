@@ -5,8 +5,12 @@ services:
     build:
       context: .
       dockerfile: src/api/EuroNoteExplorer.Api/Dockerfile
+    depends_on:
+      - redis
     ports:
       - "7001:8080"
+    environment:
+      - RedisConnectionString=redis:6379
 
   ui:
     build:
@@ -18,3 +22,31 @@ services:
       - "7000:8080"
     environment:
       - EuroNoteAPIBaseUrl=http://api:8080
+
+  redis:
+    image: redis:7-alpine
+    container_name: euro_redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  redis-explorer:
+    container_name: redis_explorer
+    image: redis/redisinsight:latest
+    ports:
+      - "7002:5540"
+    depends_on:
+      - redis
+    environment:
+      RIHOST: redis
+      RIPORT: 6379
+      RINAME: "Euro Redis"
+    volumes:
+      - redis_insight:/data
+
+
+volumes:
+  redis_data:
+  redis_insight:

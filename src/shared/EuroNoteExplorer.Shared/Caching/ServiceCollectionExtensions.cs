@@ -9,5 +9,11 @@ namespace EuroNoteExplorer.Shared.Caching
         {
             services.AddSingleton<ICache, InMemoryCache>();
         }
-    }
+
+		public static void AddRedisCache(this IServiceCollection services, RedisOptions redisOpts)
+		{
+            services.AddSingleton(redisOpts);
+			services.AddSingleton<ICache, RedisCache>();
+		}
+	}
 }
