@@ -52,7 +52,7 @@ public class EuroNoteService : IEuroNoteService
 		if (exchangeRates is null)
 		{
 			exchangeRates = await _apiClient.GetDailyExchangeRatesAsync(today);
-			_cache.Set(cacheKey, exchangeRates, TimeSpan.FromHours(24));
+			_cache.Set(cacheKey, exchangeRates, TimeSpan.FromMinutes(15));
 		}
 
 		var summaries = new List<BankNoteSummary>();
