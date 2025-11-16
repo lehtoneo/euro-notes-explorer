@@ -1,5 +1,6 @@
 using EuroNoteExplorer.Api.Controllers;
 using EuroNoteExplorer.Api.Services.Interfaces;
+using EuroNoteExplorer.Shared.Caching;
 using EuroNoteExplorer.Shared.DTOs;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ namespace EuroNoteExplorer.Api.Tests.Controllers
     {
         private Mock<IEuroNoteService> _mockEuroNoteService;
         private Mock<ILogger<EuroNotesController>> _mockLogger;
+        private Mock<ICache> _cache;
         private EuroNotesController _controller;
 
         [TestInitialize]
@@ -19,7 +21,9 @@ namespace EuroNoteExplorer.Api.Tests.Controllers
         {
             _mockEuroNoteService = new Mock<IEuroNoteService>();
             _mockLogger = new Mock<ILogger<EuroNotesController>>();
-            _controller = new EuroNotesController(_mockEuroNoteService.Object, _mockLogger.Object);
+            _cache = new();
+            _cache.Setup(c => c.Get<IEnumerable<BankNoteSummary>>(It.IsAny<string>())).Returns((IEnumerable<BankNoteSummary>)null);
+            _controller = new EuroNotesController(_mockEuroNoteService.Object, _cache.Object, _mockLogger.Object);
         }
 
         [TestMethod]
