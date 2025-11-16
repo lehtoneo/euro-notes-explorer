@@ -105,6 +105,12 @@ The docker-compose.yml file includes the following services:
 
 ### Development
 
+#### Run tests
+
+```
+dotnet test
+```
+
 #### Project Structure
 
 ```
