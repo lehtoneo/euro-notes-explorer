@@ -60,7 +60,7 @@ cd src/api/EuroNoteExplorer.Api
 dotnet run
 ```
 
-The API will be available at https://localhost:7001
+The API will be available at http://localhost:7001
 
 #### UI
 
@@ -69,7 +69,7 @@ cd src/ui/EuroNoteExplorer.UI
 dotnet run
 ```
 
-The UI will be available at https://localhost:7000
+The UI will be available at http://localhost:7000
 
 ### Configuration
 

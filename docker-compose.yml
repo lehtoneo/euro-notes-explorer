@@ -8,9 +8,10 @@ services:
     depends_on:
       - redis
     ports:
-      - "7001:8080"
+      - "7001:7001"
     environment:
       - RedisConnectionString=redis:6379
+      - Kestrel:Endpoints:Http:Url=http://0.0.0.0:7001
 
   ui:
     build:
@@ -19,9 +20,10 @@ services:
     depends_on:
       - api
     ports:
-      - "7000:8080"
+      - "7000:7000"
     environment:
-      - EuroNoteAPIBaseUrl=http://api:8080
+      - EuroNoteAPIBaseUrl=http://api:7001
+      - Kestrel:Endpoints:Http:Url=http://0.0.0.0:7000
 
   redis:
     image: redis:7-alpine
