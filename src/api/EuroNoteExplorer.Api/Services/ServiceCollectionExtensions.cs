@@ -11,6 +11,7 @@ namespace EuroNoteExplorer.Api.Services
             serviceCollection.AddHttpClient();
             serviceCollection.AddSingleton(options);
 
+            serviceCollection.AddTransient<IBoFOpenApiClient, BoFOpenApiClient>();
             serviceCollection.AddTransient<IEuroNoteService, EuroNoteService>();
         }
     }

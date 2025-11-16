@@ -16,154 +16,111 @@ public class EuroNoteServiceOptions
 
 public class EuroNoteService : IEuroNoteService
 {
-    private readonly EuroNoteServiceOptions _options;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ICache _cache;
+	private readonly IBoFOpenApiClient _apiClient;
+	private readonly ICache _cache;
+	private readonly ILogger<EuroNoteService> _logger;
 
-    // Bank of Finland dataset & series names
-    private const string Dataset = "BOF_BKN1_PUBL";
+	private static readonly IReadOnlyDictionary<string, int> Denominations =
+		new Dictionary<string, int>
+		{
+			["B5"] = 5,
+			["B10"] = 10,
+			["B20"] = 20,
+			["B50"] = 50,
+			["B100"] = 100,
+			["B200"] = 200,
+			["B500"] = 500
+		};
 
-    // Setelien nimellisarvot ja niiden tunnisteet
-    private static readonly Dictionary<string, int> Denominations = new()
-    {
-        ["B5"] = 5,
-        ["B10"] = 10,
-        ["B20"] = 20,
-        ["B50"] = 50,
-        ["B100"] = 100,
-        ["B200"] = 200,
-        ["B500"] = 500
-    };
+	public EuroNoteService(
+		IBoFOpenApiClient apiClient,
+		ICache cache,
+		ILogger<EuroNoteService> logger)
+	{
+		_apiClient = apiClient;
+		_cache = cache;
+		_logger = logger;
+	}
 
-    public EuroNoteService(EuroNoteServiceOptions options, IHttpClientFactory httpClientFactory, ICache cache)
-    {
-        _cache = cache;
-		_options = options;
-        _httpClientFactory = httpClientFactory;
-    }
+	public async Task<IEnumerable<BankNoteSummary>> GetNoteSummariesAsync(BankNoteFilters filters)
+	{
+		var today = DateTime.UtcNow.Date;
 
-    public async Task<IEnumerable<BankNoteSummary>> GetNoteSummariesAsync(BankNoteFilters filters)
-    {
-        var httpClient = _httpClientFactory.CreateClient();
-        var summaries = new List<BankNoteSummary>();
+		var cacheKey = $"fx:{today:yyyyMMdd}";
+		var exchangeRates = _cache.Get<Dictionary<string, string>>(cacheKey);
 
+		if (exchangeRates is null)
+		{
+			exchangeRates = await _apiClient.GetDailyExchangeRatesAsync(today);
+			_cache.Set(cacheKey, exchangeRates, TimeSpan.FromHours(24));
+		}
 
-        DateTime currDate = DateTime.UtcNow;
-		var key = currDate.ToString("yyyyMMdd");
+		var summaries = new List<BankNoteSummary>();
 
-		var exchangeRates = await _cache.GetOrAddAsync(key, async ()  => await GetExchangeRatesAsync(currDate), TimeSpan.FromDays(1));
+		foreach (var (code, nominalValue) in Denominations)
+		{
+			try
+			{
+				var observations = await _apiClient.GetBanknotePiecesAsync(
+					code, filters.StartPeriod, filters.EndPeriod);
 
-		foreach (var (denomCode, nominalValue) in Denominations)
-        {
-            try
-            {
+				decimal count = observations.LastOrDefault()?.Value ?? 0;
+				decimal totalValue = count * nominalValue;
 
-                // Hae kappalemäärät (PN = Pieces)
-                var countSeriesName = $"M.FI.NC.BN.EUR.{denomCode}.ALL.PN.ST.F.XX";
-                var countData = await GetObservationsAsync(
-                    httpClient,
-                    countSeriesName,
-                    filters.StartPeriod,
-                    filters.EndPeriod
-                );
+				summaries.Add(_buildSummary(code, nominalValue, count, totalValue, exchangeRates));
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error fetching banknote data for {Code}", code);
+			}
+		}
 
-                decimal totalCount = countData.LastOrDefault()?.Value ?? 0;
-                var totalValue = totalCount * nominalValue;
+		return summaries.OrderBy(s => s.Denomination);
+	}
 
-                var summary = new BankNoteSummary
-                {
-                    Denomination = nominalValue,
-                    DenominationCode = denomCode,
-                    CurrencyCode = "EUR",
-                    Value = totalValue,
-                    Count = (long)(totalCount),
-                    CurrencyValues = exchangeRates.Keys.Select(currencyCode =>
-                    {
-                        string exchangeRate = exchangeRates[currencyCode];
-                        decimal exchangeRateDecimal = _getDecimalFromAPIStr(exchangeRate);
+	private static BankNoteSummary _buildSummary(
+		string code,
+		int nominalValue,
+		decimal count,
+		decimal totalValue,
+		Dictionary<string, string> fx
+		)
+	{
+		return new BankNoteSummary
+		{
+			Denomination = nominalValue,
+			DenominationCode = code,
+			CurrencyCode = "EUR",
+			Value = totalValue,
+			Count = (long)count,
+			CurrencyValues = fx.Select(r =>
+			{
+				decimal rate = _parseAPIDecimal(r.Value);
 
-                        decimal val = totalValue * exchangeRateDecimal;
-                        string valStr = val.ToString(CultureInfo.InvariantCulture);
+				decimal convertedValue = totalValue * rate;
 
-						return new CurrencyValue {
-                            CurrencyCode = currencyCode,
-                            Value = valStr,
-                            ExchangeRate = exchangeRateDecimal.ToString(CultureInfo.InvariantCulture),
-                        };
-                    })
-                };
+				return new CurrencyValue
+				{
+					CurrencyCode = r.Key,
+					ExchangeRate = r.Value,
+					Value = convertedValue.ToString(CultureInfo.InvariantCulture)
+				};
+			})
+		};
+	}
 
-                summaries.Add(summary);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching data for {denomCode}: {ex.Message}");
-            }
-        }
+	private static decimal _parseAPIDecimal(string? str)
+	{
+		if (string.IsNullOrEmpty(str))
+			return 0;
 
-        return summaries.OrderBy(s => s.Denomination);
-    }
+		return decimal.Parse(str, new NumberFormatInfo
+		{
+			NumberDecimalSeparator = ","
+		});
+	}
 
-    private async Task<List<BankNoteObservation>> GetObservationsAsync(
-        HttpClient httpClient,
-        string seriesName,
-        DateTime startPeriod,
-        DateTime endPeriod)
-    {
-        var url = $"{_options.BoFOpenAPIBaseUrl}/v4/observations/{Dataset}" +
-                  $"?seriesName={Uri.EscapeDataString(seriesName)}" +
-                  $"&startPeriod={startPeriod.ToString("o", CultureInfo.InvariantCulture)}" +
-                  $"&endPeriod={endPeriod.ToString("o", CultureInfo.InvariantCulture)}" +
-                  $"&pageSize=1000";
-
-        var response = await httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
-
-        var result = await response.Content.ReadFromJsonAsync<BoFObservationsResponse>();
-
-        var observations = result?.Items?.FirstOrDefault()?.Observations ?? new List<BoFObservation>();
-
-
-        return observations.Select(obs => new BankNoteObservation
-        {
-            Period = DateTime.Parse(obs.Period),
-            PeriodCode = obs.PeriodCode,
-            Value = obs.Value
-        }).ToList();
-    }
-
-    public async Task<Dictionary<string, string>> GetExchangeRatesAsync(DateTime date, string[]? currencies = null)
-    {
-        var httpClient = _httpClientFactory.CreateClient();
-
-        var currenciesParam = currencies != null && currencies.Length > 0
-            ? string.Join(",", currencies)
-            : "";
-
-        var url = $"{_options.BoFOpenAPIBaseUrl}/referencerates/v2/api/V2" +
-                  $"?startDate={date:yyyy-MM-dd}" +
-                  $"&endDate={date:yyyy-MM-dd}";
-
-        if (!string.IsNullOrEmpty(currenciesParam))
-        {
-            url += $"&currencies={currenciesParam}";
-        }
-
-        var response = await httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
-
-        var result = await response.Content.ReadFromJsonAsync<List<ExchangeRateInfo>>();
-
-        return result!.ToDictionary(r => r.Currency, r => r.ExchangeRates?.FirstOrDefault()?.Value ?? "0");
-        
-    }
-    private decimal _getDecimalFromAPIStr(string? str)
-    {
-        if (string.IsNullOrEmpty(str)) return 0;
-        return decimal.Parse(str, new NumberFormatInfo() { NumberDecimalSeparator = "," });
-    }
 }
-
 
 
 // ============ BoF API RESPONSE MODELS ============

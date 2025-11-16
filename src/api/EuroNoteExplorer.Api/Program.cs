@@ -36,11 +36,8 @@ app.Logger.LogInformation("App starting...");
 app.Logger.LogInformation($"Using Redis as cache: {redisConnectionString != null}");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -49,3 +46,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make the implicit Program class accessible to tests
+public partial class Program { }
