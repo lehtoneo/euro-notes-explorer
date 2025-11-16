@@ -102,7 +102,7 @@ public class EuroNoteService : IEuroNoteService
 				return new CurrencyValue
 				{
 					CurrencyCode = r.Key,
-					ExchangeRate = r.Value,
+					ExchangeRate = rate.ToString(CultureInfo.InvariantCulture),
 					Value = convertedValue.ToString(CultureInfo.InvariantCulture)
 				};
 			})
